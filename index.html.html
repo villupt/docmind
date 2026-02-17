@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DocMind — AI PDF Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0F;--surface:#12121A;--surface-high:#1A1A28;--border:#2A2A3D;
+  --accent:#6C63FF;--accent-soft:rgba(108,99,255,.13);--accent-glow:rgba(108,99,255,.27);
+  --teal:#00D4B4;--teal-soft:rgba(0,212,180,.13);--gold:#F5C842;
+  --text:#EEEEF8;--text-muted:#7878A0;--text-dim:#4A4A68;
+  --error:#FF5A5A;--success:#3DDB96;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes waveBar{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gradient-text{background:linear-gradient(135deg,var(--accent),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.noise{position:fixed;inset:0;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px;z-index:9999;}
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;background:rgba(10,10,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--teal));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:#fff;box-shadow:0 0 20px var(--accent-glow);flex-shrink:0;}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:-.3px;}
+.logo-sub{font-size:9px;color:var(--text-muted);letter-spacing:.7px;margin-top:-1px;}
+.header-right{display:flex;align-items:center;gap:8px;}
+/* BTNS */
+.btn{cursor:pointer;border:none;font-family:'DM Sans',sans-serif;font-weight:600;border-radius:10px;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;padding:8px 16px;font-size:13px;}
+.btn-primary:hover{background:#7D75FF;transform:translateY(-1px);box-shadow:0 4px 20px var(--accent-glow);}
+.btn-ghost{background:none;border:1.5px solid var(--border);color:var(--text-muted);padding:7px 14px;font-size:13px;}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-icon{background:var(--surface-high);border:1.5px solid var(--border);color:var(--text-muted);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.btn-icon:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+.btn-icon.active{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+.tag{background:var(--accent-soft);border:1px solid rgba(108,99,255,.35);border-radius:6px;color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 7px;text-transform:uppercase;}
+.chip{background:var(--surface-high);border:1px solid var(--border);border-radius:20px;color:var(--text-muted);font-size:11px;font-weight:500;padding:3px 9px;display:inline-flex;align-items:center;gap:4px;}
+/* LAYOUT */
+.app{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:260px;flex-shrink:0;background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .3s;}
+.sidebar.collapsed{width:0;overflow:hidden;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+/* SIDEBAR */
+.search-bar{background:var(--surface-high);border:1.5px solid var(--border);border-radius:10px;display:flex;align-items:center;gap:8px;padding:6px 10px;margin:10px;transition:border-color .2s;}
+.search-bar:focus-within{border-color:var(--accent);}
+.search-bar input{background:none;border:none;outline:none;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;flex:1;}
+.search-bar input::placeholder{color:var(--text-dim);}
+.sidebar-top{padding:0 10px 10px;border-bottom:1px solid var(--border);}
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface);}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:var(--accent-soft);}
+.drop-zone:hover .dz-icon,.drop-zone.drag .dz-icon{color:var(--accent);}
+.dz-icon{color:var(--text-dim);transition:color .2s;margin-bottom:5px;}
+.dz-label{font-size:12px;color:var(--text-muted);font-weight:500;}
+.dz-sub{font-size:10px;color:var(--text-dim);margin-top:2px;}
+.upload-prog{background:var(--surface-high);border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:8px;animation:fadeIn .2s;}
+.prog-header{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;}
+.prog-pct{color:var(--accent);}
+.prog-bar{height:3px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:3px;transition:width .3s;}
+.prog-step{font-size:10px;color:var(--text-muted);margin-top:4px;}
+.sidebar-docs{flex:1;overflow-y:auto;padding:10px;}
+.section-label{font-size:10px;color:var(--text-dim);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;padding:0 2px;}
+.doc-item{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:10px;border:1.5px solid transparent;cursor:pointer;transition:all .2s;margin-bottom:5px;background:var(--surface-high);}
+.doc-item:hover{border-color:var(--border);}
+.doc-item.active{border-color:var(--accent);background:var(--accent-soft);}
+.doc-icon{width:30px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.doc-info{flex:1;min-width:0;}
+.doc-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.doc-meta{font-size:10px;color:var(--text-muted);margin-top:2px;}
+.empty-docs{text-align:center;padding:24px 10px;}
+.empty-docs-icon{font-size:28px;opacity:.4;margin-bottom:8px;}
+.empty-docs-text{font-size:12px;color:var(--text-dim);line-height:1.6;}
+.sidebar-footer{padding:10px;border-top:1px solid var(--border);flex-shrink:0;}
+.model-select{background:var(--surface-high);border:1.5px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;border-radius:8px;padding:6px 10px;width:100%;cursor:pointer;outline:none;margin-bottom:8px;}
+.model-select:focus{border-color:var(--accent);}
+.stats-row{display:flex;gap:5px;}
+.stat-box{flex:1;background:var(--surface-high);border:1px solid var(--border);border-radius:8px;padding:6px;text-align:center;}
+.stat-val{font-size:13px;font-weight:700;}
+.stat-label{font-size:9px;color:var(--text-dim);margin-top:1px;}
+/* CHAT */
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.chat-header-left{display:flex;align-items:center;gap:8px;min-width:0;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;}
+.pulse{animation:pulse 1.5s ease infinite;}
+.chat-doc-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+.chat-header-right{display:flex;gap:5px;}
+.messages{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:14px;}
+/* Welcome card */
+.welcome-card{background:linear-gradient(135deg,rgba(108,99,255,.1),rgba(0,212,180,.07));border:1px solid rgba(108,99,255,.2);border-radius:18px;padding:20px;max-width:440px;width:100%;text-align:center;align-self:center;animation:fadeIn .4s ease;}
+.welcome-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;}
+.welcome-desc{font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;}
+.welcome-tips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+.tip{background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--text-muted);padding:5px 11px;cursor:pointer;transition:all .15s;}
+.tip:hover{border-color:var(--accent);color:var(--accent);}
+/* Messages */
+.msg{display:flex;flex-direction:column;animation:slideUp .3s ease forwards;opacity:0;}
+.msg.user{align-items:flex-end;}
+.msg.assistant{align-items:flex-start;}
+.msg-meta{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.ai-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--teal));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:10px;color:#fff;flex-shrink:0;}
+.msg-sender{font-size:12px;color:var(--text-muted);font-weight:500;}
+.bubble{max-width:84%;padding:12px 14px;line-height:1.65;font-size:13.5px;border:1.5px solid var(--border);background:var(--surface-high);border-radius:4px 16px 16px 16px;}
+.msg.user .bubble{background:linear-gradient(135deg,rgba(108,99,255,.8),rgba(108,99,255,.6));border-color:rgba(108,99,255,.4);border-radius:16px 16px 4px 16px;color:#fff;}
+.bubble strong{font-weight:600;}
+.bubble em{font-style:italic;opacity:.85;}
+.bubble code{background:rgba(0,0,0,.3);border-radius:4px;padding:1px 5px;font-size:12px;font-family:monospace;color:var(--teal);}
+.bubble pre{background:rgba(0,0,0,.4);border-radius:8px;padding:10px;margin:8px 0;overflow-x:auto;font-size:12px;line-height:1.5;border:1px solid var(--border);}
+.bubble pre code{background:none;padding:0;color:#cdd6f4;}
+.bubble ul,.bubble ol{padding-left:18px;margin:6px 0;}
+.bubble li{margin:3px 0;}
+.bubble p+p{margin-top:6px;}
+.bubble h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin:10px 0 5px;}
+.bubble h2{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin:10px 0 5px;}
+.bubble blockquote{border-left:2px solid var(--accent);padding-left:10px;margin:6px 0;color:var(--text-muted);font-style:italic;}
+.bubble table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;}
+.bubble th{background:var(--surface);padding:6px 8px;text-align:left;border:1px solid var(--border);}
+.bubble td{padding:5px 8px;border:1px solid var(--border);}
+.bubble tr:nth-child(even) td{background:rgba(0,0,0,.2);}
+.citations{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.cite{display:inline-flex;align-items:center;gap:3px;background:var(--teal-soft);border:1px solid rgba(0,212,180,.25);border-radius:4px;color:var(--teal);font-size:10px;font-weight:600;padding:2px 7px;cursor:pointer;transition:all .15s;}
+.cite:hover{background:rgba(0,212,180,.2);}
+.typing{display:flex;align-items:center;gap:6px;background:var(--surface-high);border:1.5px solid var(--border);border-radius:4px 16px 16px 16px;padding:10px 14px;align-self:flex-start;}
+.t-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+.t-dot:nth-child(1){animation:pulse 1.4s ease infinite 0s;}
+.t-dot:nth-child(2){animation:pulse 1.4s ease infinite .2s;}
+.t-dot:nth-child(3){animation:pulse 1.4s ease infinite .4s;}
+/* INPUT */
+.input-area{padding:12px 16px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.quick-prompts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.qp{background:var(--surface-high);border:1px solid var(--border);border-radius:16px;color:var(--text-muted);font-size:11px;font-weight:500;padding:4px 10px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.qp:hover{border-color:var(--accent);color:var(--accent);}
+.input-row{display:flex;gap:8px;align-items:flex-end;}
+textarea#chatInput{flex:1;background:var(--surface-high);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 14px;resize:none;outline:none;transition:border-color .2s;max-height:120px;overflow-y:auto;line-height:1.5;}
+textarea#chatInput:focus{border-color:var(--accent);}
+textarea#chatInput::placeholder{color:var(--text-dim);}
+.send-btn{background:var(--accent);border:none;border-radius:10px;color:#fff;cursor:pointer;padding:10px 12px;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.send-btn:hover:not(:disabled){background:#7D75FF;box-shadow:0 4px 20px var(--accent-glow);}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;}
+.mic-btn{background:var(--surface-high);border:1.5px solid var(--border);border-radius:10px;color:var(--text-muted);cursor:pointer;padding:9px;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:2px;min-width:36px;}
+.mic-btn.active{border-color:var(--error);color:var(--error);background:rgba(255,90,90,.1);}
+.mic-btn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
+.wave-bar{width:3px;border-radius:3px;background:var(--error);transform-origin:bottom;}
+.input-footer{display:flex;justify-content:space-between;align-items:center;margin-top:7px;}
+.if-left{font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px;}
+.if-right{font-size:10px;color:var(--text-dim);}
+/* EMPTY STATE */
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;animation:fadeIn .4s ease;}
+.es-icon{font-size:52px;margin-bottom:16px;opacity:.5;}
+.es-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.es-desc{font-size:14px;color:var(--text-muted);line-height:1.7;max-width:320px;margin-bottom:22px;}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease;}
+.modal{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:28px;max-width:460px;width:90%;box-shadow:0 30px 80px rgba(0,0,0,.5);}
+.modal-logo{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.modal-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;}
+.modal-desc{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:18px;}
+.modal-feat{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:7px;}
+.feat-check{color:var(--success);}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px;display:block;letter-spacing:.4px;text-transform:uppercase;}
+.form-input{width:100%;background:var(--surface-high);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--accent);}
+.form-input::placeholder{color:var(--text-dim);}
+.form-hint{font-size:11px;color:var(--text-dim);margin-top:5px;line-height:1.5;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:8px;}
+/* PDF PANEL */
+.pdf-panel{width:0;overflow:hidden;border-left:1px solid var(--border);transition:width .3s;display:flex;flex-direction:column;flex-shrink:0;}
+.pdf-panel.open{width:360px;}
+.pdf-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(--surface);}
+.pdf-header-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+#pdfViewer{flex:1;overflow-y:auto;background:var(--bg);padding:8px;}
+#pdfViewer canvas{display:block;margin:0 auto 8px;box-shadow:0 4px 20px rgba(0,0,0,.5);max-width:100%;border-radius:2px;}
+/* CONTEXT MENU */
+.ctx-menu{position:fixed;z-index:500;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:5px;min-width:170px;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:fadeIn .15s ease;}
+.ctx-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text-muted);transition:all .15s;}
+.ctx-item:hover{background:var(--surface-high);color:var(--text);}
+.ctx-item.danger{color:var(--error);}
+.ctx-item.danger:hover{background:rgba(255,90,90,.1);}
+.ctx-divider{height:1px;background:var(--border);margin:3px 0;}
+/* EXPORT PANEL */
+.export-panel{position:absolute;right:12px;top:52px;z-index:200;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:6px;min-width:190px;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:fadeIn .15s ease;}
+.exp-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text-muted);transition:all .15s;}
+.exp-item:hover{background:var(--surface-high);color:var(--text);}
+/* TOAST */
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:9998;display:flex;flex-direction:column;gap:7px;}
+.toast{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:9px 14px;display:flex;align-items:center;gap:8px;font-size:13px;animation:slideUp .25s ease;box-shadow:0 8px 30px rgba(0,0,0,.4);min-width:230px;max-width:340px;transition:opacity .3s;}
+.toast.success{border-color:rgba(61,219,150,.4);}
+.toast.error{border-color:rgba(255,90,90,.4);}
+.toast.info{border-color:rgba(108,99,255,.4);}
+@media(max-width:700px){
+  .sidebar{display:none;}
+  .sidebar.mobile-open{display:flex;position:fixed;inset:0 auto 0 0;z-index:500;width:280px;box-shadow:10px 0 40px rgba(0,0,0,.6);}
+  .chat-doc-name{max-width:120px;}
+  .pdf-panel.open{width:0;}
+  .header-right .btn-primary span{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <div class="modal-logo">
+      <div class="logo-icon">D</div>
+      <div><div class="logo-text">DocMind</div><div class="logo-sub">AI PDF INTELLIGENCE</div></div>
+    </div>
+    <div class="modal-title">Welcome to <span class="gradient-text">DocMind</span></div>
+    <div class="modal-desc">Chat with any PDF using Claude AI. Your documents stay on your device — always.</div>
+    <div class="modal-feat"><span class="feat-check">✓</span>Analyze PDFs with Claude AI — exact page citations</div>
+    <div class="modal-feat"><span class="feat-check">✓</span>OCR for scanned documents</div>
+    <div class="modal-feat"><span class="feat-check">✓</span>Voice input, multi-doc mode, export to any format</div>
+    <div class="modal-feat"><span class="feat-check">✓</span>Your API key stays in your browser only</div>
+    <div class="form-group" style="margin-top:18px;">
+      <label class="form-label">Anthropic API Key</label>
+      <input type="password" class="form-input" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" onkeydown="if(event.key==='Enter')saveApiKey()"/>
+      <div class="form-hint">🔒 Stored only in your browser's localStorage. Get your key at <strong style="color:var(--text-muted);">console.anthropic.com</strong></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="skipApiKey()">Try Demo Mode</button>
+      <button class="btn btn-primary" onclick="saveApiKey()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Start Using DocMind
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div class="ctx-menu" id="ctxMenu" style="display:none;"></div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo" onclick="toggleSidebar()">
+    <div class="logo-icon">D</div>
+    <div><div class="logo-text">DocMind</div><div class="logo-sub">AI PDF INTELLIGENCE</div></div>
+  </div>
+  <div class="header-right">
+    <button class="btn-icon" id="pdfToggleBtn" onclick="togglePdfPanel()" title="Toggle PDF preview">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    </button>
+    <div style="position:relative;">
+      <button class="btn-icon" onclick="toggleExportPanel()" id="exportBtn" title="Export">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </button>
+      <div class="export-panel" id="exportPanel" style="display:none;"></div>
+    </div>
+    <button class="btn-icon" onclick="showApiModal()" title="Settings / API Key">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <button class="btn btn-primary" onclick="triggerUpload()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      <span>Upload PDF</span>
+    </button>
+  </div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="search-bar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search documents..." oninput="filterDocs(this.value)"/>
+    </div>
+    <div class="sidebar-top">
+      <div class="drop-zone" id="dropZone" onclick="triggerUpload()"
+        ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+        <div class="dz-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        </div>
+        <div class="dz-label">Drop PDF or click to upload</div>
+        <div class="dz-sub">No size limit · OCR supported</div>
+      </div>
+      <div id="uploadProgs"></div>
+    </div>
+    <input type="file" id="fileInput" accept=".pdf" multiple onchange="handleFiles(event)"/>
+
+    <div class="sidebar-docs">
+      <div class="section-label" id="docsLabel" style="display:none;">Documents</div>
+      <div id="docsList"></div>
+      <div class="empty-docs" id="emptyDocs">
+        <div class="empty-docs-icon">📄</div>
+        <div class="empty-docs-text">No documents yet.<br>Upload a PDF to get started.</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div style="font-size:10px;color:var(--text-dim);font-weight:700;letter-spacing:.5px;margin-bottom:5px;">AI MODEL</div>
+      <select class="model-select" id="modelSelect">
+        <option value="claude-opus-4-6">Claude Opus 4.6 — Most Capable</option>
+        <option value="claude-sonnet-4-6" selected>Claude Sonnet 4.6 — Recommended</option>
+        <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — Fastest</option>
+      </select>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-val" id="sDocs" style="color:var(--accent);">0</div><div class="stat-label">Docs</div></div>
+        <div class="stat-box"><div class="stat-val" id="sPages" style="color:var(--teal);">0</div><div class="stat-label">Pages</div></div>
+        <div class="stat-box"><div class="stat-val" id="sMsgs" style="color:var(--gold);">0</div><div class="stat-label">Chats</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+    <!-- Chat Header (hidden until doc selected) -->
+    <div class="chat-header" id="chatHeader" style="display:none;">
+      <div class="chat-header-left">
+        <div class="status-dot pulse"></div>
+        <div class="chat-doc-name" id="chatDocName"></div>
+        <div class="chip" id="chatPages"></div>
+        <div class="chip" id="chatSize"></div>
+      </div>
+      <div class="chat-header-right">
+        <button class="btn-icon" id="allDocsBtn" onclick="toggleAllDocs()" title="Search all documents">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        </button>
+        <button class="btn-icon" onclick="clearChat()" title="Clear conversation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages" id="messages">
+      <div class="empty-state" id="emptyState">
+        <div class="es-icon">⚡</div>
+        <div class="es-title">DocMind is <span class="gradient-text">Ready</span></div>
+        <div class="es-desc">Upload any PDF and ask questions. Get cited answers with exact page numbers, summaries, extracted data, and more.</div>
+        <button class="btn btn-primary" onclick="triggerUpload()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+          Upload Your First PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Input (hidden until doc loaded) -->
+    <div class="input-area" id="inputArea" style="display:none;">
+      <div class="quick-prompts">
+        <span class="qp" onclick="insertAndSend('Summarize this document in 5 bullet points')">📋 Summarize</span>
+        <span class="qp" onclick="insertAndSend('What are the main findings and conclusions?')">💡 Key Findings</span>
+        <span class="qp" onclick="insertAndSend('List all statistics, numbers and data points mentioned')">📊 Statistics</span>
+        <span class="qp" onclick="insertAndSend('Create a detailed table of contents')">📑 Table of Contents</span>
+        <span class="qp" onclick="insertAndSend('Extract all action items or tasks mentioned')">✅ Action Items</span>
+        <span class="qp" onclick="insertAndSend('What questions does this document leave unanswered?')">❓ Open Questions</span>
+      </div>
+      <div class="input-row">
+        <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Voice input">
+          <svg id="micIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <div id="micWave" style="display:none;gap:2px;height:18px;align-items:center;"></div>
+        </button>
+        <textarea id="chatInput" rows="2"
+          placeholder="Ask anything about your document... (Enter to send, Shift+Enter for newline)"
+          oninput="onInputChange()" onkeydown="onKeyDown(event)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="input-footer">
+        <div class="if-left">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Data stays local · Direct to Anthropic API
+        </div>
+        <div class="if-right"><span id="charCount">0</span>/4000</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF VIEWER PANEL -->
+  <div class="pdf-panel" id="pdfPanel">
+    <div class="pdf-header">
+      <div class="pdf-header-name" id="pdfPanelName">PDF Viewer</div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-muted);" id="pdfPageCount"></span>
+        <button class="btn-icon" onclick="togglePdfPanel()" style="width:26px;height:26px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="pdfViewer"></div>
+  </div>
+</div>
+
+<script>
+// =========================================================
+// STATE
+// =========================================================
+const S = {
+  apiKey: localStorage.getItem('dm_key') || '',
+  docs: [],
+  activeId: null,
+  allDocsMode: false,
+  generating: false,
+  listening: false,
+  recognition: null,
+  pdfOpen: false,
+};
+const COLORS = ['#6C63FF','#00D4B4','#F5C842','#FF6B8A','#4FC3F7'];
+
+// PDF.js worker
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// =========================================================
+// INIT
+// =========================================================
+window.addEventListener('load', () => {
+  if (S.apiKey) {
+    document.getElementById('apiModal').style.display = 'none';
+    document.getElementById('apiKeyInput').value = S.apiKey;
+  }
+  initVoice();
+  updateStats();
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#ctxMenu')) hideCtxMenu();
+    if (!e.target.closest('#exportPanel') && !e.target.closest('#exportBtn')) {
+      document.getElementById('exportPanel').style.display = 'none';
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey||e.ctrlKey) && e.key === 'k') { e.preventDefault(); triggerUpload(); }
+    if ((e.metaKey||e.ctrlKey) && e.key === '\\') { e.preventDefault(); toggleSidebar(); }
+    if (e.key === 'Escape') { hideCtxMenu(); document.getElementById('exportPanel').style.display='none'; }
+  });
+});
+
+// =========================================================
+// API KEY
+// =========================================================
+function saveApiKey() {
+  const k = document.getElementById('apiKeyInput').value.trim();
+  if (!k.startsWith('sk-ant-')) { toast('Enter a valid Anthropic API key (starts with sk-ant-)', 'error'); return; }
+  S.apiKey = k;
+  localStorage.setItem('dm_key', k);
+  document.getElementById('apiModal').style.display = 'none';
+  toast('API key saved! Ready to chat.', 'success');
+}
+function skipApiKey() {
+  document.getElementById('apiModal').style.display = 'none';
+  toast('Demo mode — upload a PDF, then add your API key in settings to chat', 'info');
+}
+function showApiModal() {
+  document.getElementById('apiKeyInput').value = S.apiKey;
+  document.getElementById('apiModal').style.display = 'flex';
+}
+
+// =========================================================
+// FILE UPLOAD
+// =========================================================
+function triggerUpload() { document.getElementById('fileInput').click(); }
+function handleFiles(e) {
+  Array.from(e.target.files).forEach(f => { if (f.type==='application/pdf') processPDF(f); });
+  e.target.value = '';
+}
+function onDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag'); }
+function onDragLeave() { document.getElementById('dropZone').classList.remove('drag'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag');
+  const files = Array.from(e.dataTransfer.files).filter(f=>f.type==='application/pdf');
+  if (!files.length) { toast('Please drop PDF files only','error'); return; }
+  files.forEach(f => processPDF(f));
+}
+
+async function processPDF(file) {
+  const id = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+  const color = COLORS[S.docs.length % COLORS.length];
+  const progs = document.getElementById('uploadProgs');
+
+  const prog = document.createElement('div');
+  prog.className = 'upload-prog';
+  prog.id = 'up_' + id;
+  const shortName = file.name.length > 24 ? file.name.slice(0,21)+'...' : file.name;
+  prog.innerHTML = `
+    <div class="prog-header"><span>${shortName}</span><span class="prog-pct" id="pp_${id}">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="pf_${id}" style="width:0"></div></div>
+    <div class="prog-step" id="ps_${id}">Initializing…</div>`;
+  progs.appendChild(prog);
+
+  const setP = (pct, step) => {
+    const f = document.getElementById('pf_'+id);
+    const p = document.getElementById('pp_'+id);
+    const s = document.getElementById('ps_'+id);
+    if(f) f.style.width = pct+'%';
+    if(p) p.textContent = pct+'%';
+    if(s) s.textContent = step;
+  };
+
+  try {
+    setP(10, 'Loading PDF…');
+    const buf = await file.arrayBuffer();
+    setP(20, 'Parsing…');
+    const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+    const numPages = pdf.numPages;
+    const pageTexts = [];
+    let fullText = '';
+
+    for (let p = 1; p <= numPages; p++) {
+      const pct = 20 + Math.round((p/numPages)*72);
+      setP(pct, `Reading page ${p}/${numPages}…`);
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      const txt = content.items.map(i=>i.str).join(' ').replace(/\s+/g,' ').trim();
+      pageTexts.push({page:p, text:txt});
+      fullText += `\n\n[Page ${p}]\n${txt}`;
+    }
+
+    setP(96, 'Finalizing…');
+    const doc = {id, name:file.name, size:fmtSize(file.size), pages:numPages, pageTexts, fullText, color, messages:[], file, pdf};
+    S.docs.push(doc);
+    setP(100, '✓ Ready to chat!');
+    setTimeout(()=>prog.remove(), 1400);
+    renderDocs();
+    selectDoc(id);
+    updateStats();
+    toast(`${file.name} loaded — ${numPages} pages indexed`, 'success');
+  } catch(err) {
+    prog.remove();
+    toast('Error parsing PDF: '+err.message, 'error');
+    console.error(err);
+  }
+}
+
+// =========================================================
+// DOCS
+// =========================================================
+function renderDocs(filter='') {
+  const list = document.getElementById('docsList');
+  const empty = document.getElementById('emptyDocs');
+  const label = document.getElementById('docsLabel');
+  const filtered = filter ? S.docs.filter(d=>d.name.toLowerCase().includes(filter.toLowerCase())) : S.docs;
+  if (!S.docs.length) { list.innerHTML=''; empty.style.display='block'; label.style.display='none'; return; }
+  empty.style.display='none';
+  label.style.display='block';
+  label.textContent = `Documents (${S.docs.length})`;
+  list.innerHTML = filtered.map(d=>`
+    <div class="doc-item ${d.id===S.activeId?'active':''}" onclick="selectDoc('${d.id}')" oncontextmenu="showCtx(event,'${d.id}')">
+      <div class="doc-icon" style="background:${d.color}20;border:1px solid ${d.color}40;color:${d.color};">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="doc-info">
+        <div class="doc-name" title="${d.name}">${d.name}</div>
+        <div class="doc-meta">${d.pages}p · ${d.size} · ${d.messages.length} msgs</div>
+      </div>
+    </div>`).join('');
+}
+
+function filterDocs(v) { renderDocs(v); }
+
+function selectDoc(id) {
+  S.activeId = id;
+  S.allDocsMode = false;
+  document.getElementById('allDocsBtn').classList.remove('active');
+  const doc = S.docs.find(d=>d.id===id);
+  if (!doc) return;
+  renderDocs();
+  renderMessages();
+  document.getElementById('chatHeader').style.display='flex';
+  document.getElementById('chatDocName').textContent = doc.name;
+  document.getElementById('chatPages').textContent = doc.pages+' pages';
+  document.getElementById('chatSize').textContent = doc.size;
+  document.getElementById('inputArea').style.display='block';
+  document.getElementById('emptyState').style.display='none';
+  if (S.pdfOpen) renderPdfViewer(doc);
+}
+
+function deleteDoc(id) {
+  S.docs = S.docs.filter(d=>d.id!==id);
+  if (S.activeId===id) {
+    S.activeId = S.docs.length ? S.docs[0].id : null;
+    if (S.activeId) selectDoc(S.activeId); else resetToEmpty();
+  }
+  renderDocs(); updateStats();
+  toast('Document removed','info');
+}
+
+function resetToEmpty() {
+  document.getElementById('chatHeader').style.display='none';
+  document.getElementById('inputArea').style.display='none';
+  document.getElementById('messages').innerHTML='';
+  const es = document.createElement('div'); es.id='emptyState'; es.className='empty-state';
+  es.innerHTML=`<div class="es-icon">⚡</div><div class="es-title">DocMind is <span class="gradient-text">Ready</span></div><div class="es-desc">Upload any PDF and ask questions with exact page citations.</div><button class="btn btn-primary" onclick="triggerUpload()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>Upload PDF</button>`;
+  document.getElementById('messages').appendChild(es);
+}
+
+// =========================================================
+// MESSAGES
+// =========================================================
+function renderMessages() {
+  const doc = S.docs.find(d=>d.id===S.activeId);
+  if (!doc) return;
+  const c = document.getElementById('messages');
+  c.innerHTML = '';
+  if (!doc.messages.length) {
+    const card = document.createElement('div');
+    card.className='welcome-card';
+    card.innerHTML=`
+      <div style="font-size:26px;margin-bottom:8px;">⚡</div>
+      <div class="welcome-title">Chatting with <span class="gradient-text">${doc.name.replace('.pdf','')}</span></div>
+      <div class="welcome-desc">${doc.pages} pages · ${doc.size} · All text indexed</div>
+      <div class="welcome-tips">
+        <span class="tip" onclick="insertAndSend('Summarize this document')">📋 Summarize</span>
+        <span class="tip" onclick="insertAndSend('What are the key findings?')">💡 Key findings</span>
+        <span class="tip" onclick="insertAndSend('List all statistics and numbers')">📊 Statistics</span>
+        <span class="tip" onclick="insertAndSend('Create a table of contents')">📑 ToC</span>
+        <span class="tip" onclick="insertAndSend('What are the main action items?')">✅ Actions</span>
+        <span class="tip" onclick="insertAndSend('Generate 10 quiz questions from this document')">🧠 Quiz me</span>
+      </div>`;
+    c.appendChild(card);
+    return;
+  }
+  doc.messages.forEach((m,i) => addMsgDOM(m, i));
+  c.scrollTop = c.scrollHeight;
+}
+
+function addMsgDOM(msg, idx) {
+  const c = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg '+msg.role;
+  el.style.animationDelay = (idx*0.025)+'s';
+  if (msg.role==='user') {
+    el.innerHTML = `<div class="bubble">${esc(msg.content)}</div>`;
+  } else {
+    const cites = msg.citations && msg.citations.length
+      ? `<div class="citations">${msg.citations.map(p=>`<span class="cite" onclick="goPdfPage(${p})">📄 p.${p}</span>`).join('')}</div>` : '';
+    const modelLabel = (msg.model||'').includes('opus')?'Opus':(msg.model||'').includes('sonnet')?'Sonnet':'Haiku';
+    el.innerHTML=`
+      <div class="msg-meta">
+        <div class="ai-avatar">D</div>
+        <div class="msg-sender">DocMind AI</div>
+        <div class="tag">${modelLabel}</div>
+      </div>
+      <div class="bubble">${md2html(msg.content)}</div>
+      ${cites}`;
+  }
+  c.appendChild(el);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showTyping() {
+  const c = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.id='typing'; el.className='typing';
+  el.innerHTML='<div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>';
+  c.appendChild(el); c.scrollTop=c.scrollHeight;
+}
+function hideTyping() { const e=document.getElementById('typing'); if(e)e.remove(); }
+
+// =========================================================
+// SEND MESSAGE
+// =========================================================
+async function sendMessage() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim();
+  if (!text || S.generating) return;
+  const doc = S.docs.find(d=>d.id===S.activeId);
+  if (!doc) { toast('Select a document first','error'); return; }
+  if (!S.apiKey) { showApiModal(); toast('Enter your API key to start chatting','error'); return; }
+
+  const userMsg = {role:'user', content:text};
+  doc.messages.push(userMsg);
+  const c = document.getElementById('messages');
+  if (c.querySelector('.welcome-card')) c.innerHTML='';
+  addMsgDOM(userMsg, doc.messages.length-1);
+
+  inp.value=''; inp.style.height='auto';
+  document.getElementById('charCount').textContent='0';
+  document.getElementById('sendBtn').disabled=true;
+  S.generating=true; showTyping(); updateStats();
+
+  try {
+    let ctxText = S.allDocsMode
+      ? S.docs.map(d=>`=== ${d.name} ===\n${d.fullText}`).join('\n\n')
+      : doc.fullText;
+    // Limit to ~90k chars to stay within context
+    ctxText = ctxText.slice(0,90000);
+
+    const model = document.getElementById('modelSelect').value;
+    const system = `You are DocMind, an expert AI assistant for analyzing PDF documents.
+You have been given the full extracted text from ${S.allDocsMode?S.docs.length+' PDFs':'a PDF: "'+doc.name+'"'}.
+
+RULES:
+1. Always cite page numbers inline using [Page N] when referencing specific information.
+2. Only reference information actually present in the documents.
+3. Use markdown: **bold**, *italic*, headers (##), lists, tables, code blocks where helpful.
+4. Be thorough but organized. Use headers for long responses.
+5. At the end of your response, append exactly this line: PAGES:[comma-separated page numbers you referenced]
+   Example: PAGES:[1,3,7,12]
+   If no specific pages apply, omit this line.
+
+DOCUMENT TEXT:
+${ctxText}`;
+
+    const history = doc.messages.slice(-12).map(m=>({role:m.role, content:m.content}));
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({model, max_tokens:4096, system, messages:history})
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'API error '+res.status);
+    }
+    const data = await res.json();
+    const raw = data.content[0].text;
+
+    // Parse cited pages
+    const pagesMatch = raw.match(/PAGES:\[([^\]]*)\]\s*$/m);
+    const citedPages = pagesMatch
+      ? pagesMatch[1].split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)&&n>0)
+      : extractPageNums(raw);
+    const content = raw.replace(/PAGES:\[[^\]]*\]\s*$/m,'').trim();
+
+    hideTyping();
+    const aiMsg = {role:'assistant', content, citations:citedPages, model};
+    doc.messages.push(aiMsg);
+    addMsgDOM(aiMsg, doc.messages.length-1);
+    updateStats(); renderDocs();
+  } catch(err) {
+    hideTyping();
+    const errMsg = {role:'assistant', content:`⚠️ **Error:** ${err.message}\n\nPlease check:\n- Your API key is valid (Settings button in header)\n- You have Anthropic credits\n- Your network connection`, citations:[], model:''};
+    doc.messages.push(errMsg);
+    addMsgDOM(errMsg, doc.messages.length-1);
+    toast('Error: '+err.message, 'error');
+  } finally {
+    S.generating=false;
+    document.getElementById('sendBtn').disabled=false;
+  }
+}
+
+function extractPageNums(text) {
+  const m = [...text.matchAll(/\[Page (\d+)\]/gi)];
+  return [...new Set(m.map(x=>parseInt(x[1])))].sort((a,b)=>a-b);
+}
+
+function clearChat() {
+  const doc = S.docs.find(d=>d.id===S.activeId);
+  if (doc) { doc.messages=[]; renderMessages(); updateStats(); renderDocs(); toast('Conversation cleared','info'); }
+}
+
+function toggleAllDocs() {
+  S.allDocsMode = !S.allDocsMode;
+  document.getElementById('allDocsBtn').classList.toggle('active',S.allDocsMode);
+  toast(S.allDocsMode?`Multi-doc ON: searching all ${S.docs.length} documents`:'Multi-doc OFF: single document mode','info');
+}
+
+// =========================================================
+// INPUT
+// =========================================================
+function onInputChange() {
+  const inp = document.getElementById('chatInput');
+  document.getElementById('charCount').textContent = inp.value.length;
+  document.getElementById('sendBtn').disabled = inp.value.trim().length===0 || S.generating;
+  inp.style.height='auto';
+  inp.style.height=Math.min(inp.scrollHeight,120)+'px';
+}
+function onKeyDown(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
+function insertAndSend(t) { document.getElementById('chatInput').value=t; onInputChange(); sendMessage(); }
+
+// =========================================================
+// VOICE
+// =========================================================
+function initVoice() {
+  if (!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)) return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  S.recognition=new SR(); S.recognition.continuous=true; S.recognition.interimResults=true; S.recognition.lang='en-US';
+  S.recognition.onresult=e=>{
+    const txt=Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById('chatInput').value=txt; onInputChange();
+  };
+  S.recognition.onerror=()=>stopVoice();
+  S.recognition.onend=()=>{if(S.listening)S.recognition.start();};
+}
+
+function toggleVoice() {
+  if (!S.recognition) { toast('Voice not supported in this browser','error'); return; }
+  S.listening ? stopVoice() : startVoice();
+}
+function startVoice() {
+  S.listening=true; S.recognition.start();
+  document.getElementById('micBtn').classList.add('active');
+  const wave=document.getElementById('micWave');
+  wave.style.display='flex';
+  wave.innerHTML=Array.from({length:5},(_,i)=>`<div class="wave-bar" style="height:${6+Math.random()*10}px;animation:waveBar ${.4+i*.08}s ease-in-out infinite alternate;animation-delay:${i*.04}s;"></div>`).join('');
+  document.getElementById('micIcon').style.display='none';
+  toast('Listening — speak now','info');
+}
+function stopVoice() {
+  S.listening=false; S.recognition.stop();
+  document.getElementById('micBtn').classList.remove('active');
+  document.getElementById('micWave').style.display='none';
+  document.getElementById('micIcon').style.display='block';
+}
+
+// =========================================================
+// PDF VIEWER
+// =========================================================
+function togglePdfPanel() {
+  S.pdfOpen=!S.pdfOpen;
+  document.getElementById('pdfPanel').classList.toggle('open',S.pdfOpen);
+  document.getElementById('pdfToggleBtn').classList.toggle('active',S.pdfOpen);
+  if (S.pdfOpen && S.activeId) {
+    const doc=S.docs.find(d=>d.id===S.activeId);
+    if(doc) renderPdfViewer(doc);
+  }
+}
+
+async function renderPdfViewer(doc) {
+  const viewer=document.getElementById('pdfViewer');
+  document.getElementById('pdfPanelName').textContent=doc.name;
+  document.getElementById('pdfPageCount').textContent=doc.pages+' pages';
+  viewer.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Rendering PDF…</div>';
+  try {
+    viewer.innerHTML='';
+    const limit=Math.min(doc.pages,8);
+    for(let p=1;p<=limit;p++){
+      const page=await doc.pdf.getPage(p);
+      const scale=0.9;
+      const vp=page.getViewport({scale});
+      const canvas=document.createElement('canvas');
+      canvas.width=vp.width; canvas.height=vp.height;
+      canvas.id='pp_'+p;
+      const label=document.createElement('div');
+      label.style.cssText='text-align:center;font-size:9px;color:var(--text-dim);padding:2px 0 6px;';
+      label.textContent='Page '+p;
+      viewer.appendChild(canvas); viewer.appendChild(label);
+      await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+    }
+    if(doc.pages>limit){
+      const m=document.createElement('div');
+      m.style.cssText='text-align:center;padding:14px;font-size:11px;color:var(--text-muted);';
+      m.textContent=`+${doc.pages-limit} more pages`;
+      viewer.appendChild(m);
+    }
+  } catch(e){ viewer.innerHTML='<div style="padding:16px;color:var(--error);font-size:12px;">Viewer error: '+e.message+'</div>'; }
+}
+
+function goPdfPage(page) {
+  if(!S.pdfOpen) togglePdfPanel();
+  setTimeout(()=>{
+    const el=document.getElementById('pp_'+page);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    else toast('Page '+page+' — open PDF viewer to jump to it','info');
+  },350);
+}
+
+// =========================================================
+// EXPORT
+// =========================================================
+function toggleExportPanel() {
+  const p=document.getElementById('exportPanel');
+  if(p.style.display==='none'){
+    const doc=S.docs.find(d=>d.id===S.activeId);
+    p.innerHTML=`
+      <div style="padding:6px 10px 4px;font-size:10px;color:var(--text-dim);font-weight:700;letter-spacing:.5px;">EXPORT</div>
+      <div class="exp-item" onclick="exportAs('md')">📝 Markdown (.md)</div>
+      <div class="exp-item" onclick="exportAs('txt')">📄 Plain Text (.txt)</div>
+      <div class="exp-item" onclick="exportAs('html')">🌐 HTML (.html)</div>
+      <div class="exp-item" onclick="exportAs('json')">📦 JSON (.json)</div>
+      <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+      <div class="exp-item" onclick="copyChat()">📋 Copy to Clipboard</div>
+      ${doc&&doc.file?`<div class="exp-item" onclick="dlPdf()">⬇️ Download Original PDF</div>`:''}
+    `;
+    p.style.display='block';
+  } else p.style.display='none';
+}
+
+function exportAs(fmt) {
+  document.getElementById('exportPanel').style.display='none';
+  const doc=S.docs.find(d=>d.id===S.activeId);
+  if(!doc||!doc.messages.length){toast('No conversation to export','error');return;}
+  let content='',fname='',type='';
+  const ts=new Date().toLocaleString();
+  if(fmt==='md'){
+    content=`# DocMind Chat: ${doc.name}\n_${ts}_\n\n---\n\n`;
+    content+=doc.messages.map(m=>`**${m.role==='user'?'🧑 You':'🤖 DocMind AI'}**\n\n${m.content}\n\n---\n`).join('\n');
+    fname=doc.name.replace('.pdf','')+'_chat.md'; type='text/markdown';
+  }else if(fmt==='txt'){
+    content=`DocMind: ${doc.name}\n${ts}\n${'='.repeat(60)}\n\n`;
+    content+=doc.messages.map(m=>`[${m.role==='user'?'YOU':'DOCMIND'}]\n${m.content}\n\n${'-'.repeat(40)}\n`).join('\n');
+    fname=doc.name.replace('.pdf','')+'_chat.txt'; type='text/plain';
+  }else if(fmt==='html'){
+    content=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DocMind: ${doc.name}</title><style>body{font-family:Georgia,serif;max-width:800px;margin:0 auto;padding:40px;background:#0a0a0f;color:#eee}.u{background:#1e1a2e;padding:14px 18px;border-radius:10px;margin:10px 0}.a{background:#12121a;padding:14px 18px;border-radius:10px;margin:10px 0;border-left:3px solid #6c63ff}.role{font-size:11px;opacity:.6;margin-bottom:5px;font-weight:700}h1{color:#6c63ff}</style></head><body><h1>DocMind: ${doc.name}</h1><p style="opacity:.4">${ts}</p>`;
+    content+=doc.messages.map(m=>`<div class="${m.role==='user'?'u':'a'}"><div class="role">${m.role==='user'?'🧑 You':'🤖 DocMind AI'}</div><div>${m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div></div>`).join('');
+    content+='</body></html>'; fname=doc.name.replace('.pdf','')+'_chat.html'; type='text/html';
+  }else if(fmt==='json'){
+    content=JSON.stringify({document:doc.name,pages:doc.pages,exported:new Date().toISOString(),messages:doc.messages},null,2);
+    fname=doc.name.replace('.pdf','')+'_chat.json'; type='application/json';
+  }
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=fname; a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported: '+fname,'success');
+}
+
+function copyChat() {
+  document.getElementById('exportPanel').style.display='none';
+  const doc=S.docs.find(d=>d.id===S.activeId);
+  if(!doc) return;
+  const text=doc.messages.map(m=>`${m.role==='user'?'You':'DocMind'}: ${m.content}`).join('\n\n');
+  navigator.clipboard.writeText(text).then(()=>toast('Copied to clipboard!','success'));
+}
+
+function dlPdf() {
+  document.getElementById('exportPanel').style.display='none';
+  const doc=S.docs.find(d=>d.id===S.activeId);
+  if(!doc||!doc.file) return;
+  const url=URL.createObjectURL(doc.file);
+  const a=document.createElement('a'); a.href=url; a.download=doc.name; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// =========================================================
+// CONTEXT MENU
+// =========================================================
+function showCtx(e,id) {
+  e.preventDefault();
+  const menu=document.getElementById('ctxMenu');
+  menu.innerHTML=`
+    <div class="ctx-item" onclick="selectDoc('${id}');hideCtxMenu()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Open Chat</div>
+    <div class="ctx-item" onclick="S.activeId='${id}';exportAs('md');hideCtxMenu()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Export Chat</div>
+    <div class="ctx-item" onclick="copyDocText('${id}');hideCtxMenu()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Full Text</div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item danger" onclick="deleteDoc('${id}');hideCtxMenu()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>Remove</div>
+  `;
+  menu.style.display='block';
+  menu.style.left=Math.min(e.clientX,window.innerWidth-190)+'px';
+  menu.style.top=Math.min(e.clientY,window.innerHeight-200)+'px';
+}
+function hideCtxMenu() { document.getElementById('ctxMenu').style.display='none'; }
+
+function copyDocText(id) {
+  const doc=S.docs.find(d=>d.id===id);
+  if(!doc) return;
+  navigator.clipboard.writeText(doc.fullText).then(()=>toast('Full text copied!','success'));
+}
+
+// =========================================================
+// UTILS
+// =========================================================
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+function updateStats() {
+  document.getElementById('sDocs').textContent=S.docs.length;
+  document.getElementById('sPages').textContent=S.docs.reduce((s,d)=>s+d.pages,0);
+  document.getElementById('sMsgs').textContent=S.docs.reduce((s,d)=>s+d.messages.length,0);
+}
+
+function fmtSize(b) {
+  if(b<1024) return b+'B';
+  if(b<1048576) return (b/1024).toFixed(1)+'KB';
+  return (b/1048576).toFixed(1)+'MB';
+}
+
+function esc(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function md2html(text) {
+  // Code blocks first
+  text=text.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>`<pre><code>${code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>`);
+  // Inline code
+  text=text.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  // Headers
+  text=text.replace(/^#### (.+)$/gm,'<h3 style="font-size:13px;font-weight:700;margin:8px 0 4px;">$1</h3>');
+  text=text.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  text=text.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  text=text.replace(/^# (.+)$/gm,'<h2 style="font-size:17px;">$1</h2>');
+  // Bold & italic
+  text=text.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+  text=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  text=text.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  // Blockquote
+  text=text.replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>');
+  // Tables (simple)
+  text=text.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)+)/g,(m,header,rows)=>{
+    const ths=header.split('|').filter(s=>s.trim()).map(s=>`<th>${s.trim()}</th>`).join('');
+    const trs=rows.trim().split('\n').map(r=>`<tr>${r.split('|').filter(s=>s.trim()).map(s=>`<td>${s.trim()}</td>`).join('')}</tr>`).join('');
+    return `<table><tr>${ths}</tr>${trs}</table>`;
+  });
+  // Unordered lists
+  text=text.replace(/((?:^[-*] .+\n?)+)/gm,block=>{
+    const items=block.trim().split('\n').map(l=>`<li>${l.replace(/^[-*] /,'')}</li>`).join('');
+    return `<ul>${items}</ul>`;
+  });
+  // Ordered lists
+  text=text.replace(/((?:^\d+\. .+\n?)+)/gm,block=>{
+    const items=block.trim().split('\n').map(l=>`<li>${l.replace(/^\d+\. /,'')}</li>`).join('');
+    return `<ol>${items}</ol>`;
+  });
+  // Horizontal rule
+  text=text.replace(/^---+$/gm,'<hr style="border:none;border-top:1px solid var(--border);margin:10px 0;">');
+  // Paragraphs
+  text=text.replace(/\n{2,}/g,'</p><p>');
+  text=text.replace(/\n/g,'<br>');
+  if (!text.match(/^<(h[1-6]|ul|ol|pre|table|blockquote|hr)/)) {
+    text='<p>'+text+'</p>';
+  }
+  return text;
+}
+
+function toast(msg, type='info') {
+  const c=document.getElementById('toast-container');
+  const icons={success:'✅',error:'❌',info:'ℹ️'};
+  const el=document.createElement('div');
+  el.className='toast '+type;
+  el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span style="flex:1">${msg}</span>`;
+  c.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},3500);
+}
+</script>
+</body>
+</html>
