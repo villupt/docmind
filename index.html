@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>DocMind — AI PDF Intelligence</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<meta name="theme-color" content="#6C63FF"/>
+<meta name="description" content="Chat with any PDF using AI — free, fast, powered by Groq"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="DocMind"/>
+<meta name="application-name" content="DocMind"/>
+<meta property="og:title" content="DocMind — AI PDF Intelligence"/>
+<meta property="og:description" content="Chat with any PDF using Groq AI — free forever"/>
+<meta property="og:type" content="website"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="icon" type="image/png" sizes="32x32" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ===================== THEME VARIABLES ===================== */
@@ -1148,7 +1160,43 @@ function exportAs(fmt){
   }else if(fmt==='html'){
     content=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${appName}: ${doc.name}</title><style>body{font-family:Georgia,serif;max-width:800px;margin:0 auto;padding:40px;background:#0a0a0f;color:#eee}.u{background:#1e1a2e;padding:14px 18px;border-radius:10px;margin:10px 0}.a{background:#12121a;padding:14px 18px;border-radius:10px;margin:10px 0;border-left:3px solid #6c63ff}.role{font-size:11px;opacity:.6;margin-bottom:5px;font-weight:700}h1{color:#6c63ff}</style></head><body><h1>${appName}: ${doc.name}</h1><p style="opacity:.4">${ts}</p>`;
     content+=doc.messages.map(m=>`<div class="${m.role==='user'?'u':'a'}"><div class="role">${m.role==='user'?'🧑 You':'🤖 '+appName+' AI'}</div><div>${m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div></div>`).join('');
-    content+='</body></html>';fname=doc.name.replace('.pdf','')+'_chat.html';type='text/html';
+    content+='
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(r => console.log('SW registered'))
+      .catch(e => console.log('SW error', e));
+  });
+}
+// PWA Install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install button if not already installed
+  const installBtn = document.getElementById('installBtn');
+  if(installBtn) installBtn.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  toast('DocMind installed as app! 📱', 'success');
+  const installBtn = document.getElementById('installBtn');
+  if(installBtn) installBtn.style.display = 'none';
+});
+function installApp() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      if(r.outcome === 'accepted') toast('Installing DocMind... 🚀', 'success');
+      deferredPrompt = null;
+    });
+  } else {
+    toast('To install: tap browser menu → Add to Home Screen 📱', 'info');
+  }
+}
+</script>
+</body></html>';fname=doc.name.replace('.pdf','')+'_chat.html';type='text/html';
   }else if(fmt==='json'){
     content=JSON.stringify({app:appName,document:doc.name,pages:doc.pages,exported:new Date().toISOString(),messages:doc.messages},null,2);
     fname=doc.name.replace('.pdf','')+'_chat.json';type='application/json';
@@ -1243,6 +1291,42 @@ function toast(msg,type='info'){
   el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span style="flex:1">${msg}</span>`;
   c.appendChild(el);
   setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},3500);
+}
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(r => console.log('SW registered'))
+      .catch(e => console.log('SW error', e));
+  });
+}
+// PWA Install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install button if not already installed
+  const installBtn = document.getElementById('installBtn');
+  if(installBtn) installBtn.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  toast('DocMind installed as app! 📱', 'success');
+  const installBtn = document.getElementById('installBtn');
+  if(installBtn) installBtn.style.display = 'none';
+});
+function installApp() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      if(r.outcome === 'accepted') toast('Installing DocMind... 🚀', 'success');
+      deferredPrompt = null;
+    });
+  } else {
+    toast('To install: tap browser menu → Add to Home Screen 📱', 'info');
+  }
 }
 </script>
 </body>
