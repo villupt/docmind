@@ -286,7 +286,7 @@ textarea#chatInput::placeholder{color:var(--text-dim);}
 <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
 <!-- ==================== API KEY MODAL ==================== -->
-<div class="modal-overlay" id="apiModal">
+<div class="modal-overlay" id="apiModal" style="display:none;">
   <div class="modal">
     <div class="modal-logo">
       <div class="logo-icon" id="modalLogoIcon">⚡</div>
@@ -511,6 +511,15 @@ textarea#chatInput::placeholder{color:var(--text-dim);}
     </div>
 
     <div class="messages" id="messages">
+    <!-- API KEY BANNER - shows inside app -->
+    <div id="keyBanner" style="display:none;background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(0,212,180,.08));border:1.5px solid rgba(108,99,255,.3);border-radius:14px;padding:18px 20px;margin:16px;animation:fadeIn .3s ease;">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;margin-bottom:6px;">⚡ Enter your free Groq API Key to start</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Get free key at <strong style="color:var(--teal);">console.groq.com/keys</strong> → Sign up → Create API Key → copy & paste below</div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="bannerKeyInput" placeholder="Paste your gsk_... key here" style="flex:1;background:var(--surface-high);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 14px;outline:none;" onkeydown="if(event.key==='Enter')saveBannerKey()"/>
+        <button onclick="saveBannerKey()" style="background:var(--accent);border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;padding:10px 18px;white-space:nowrap;">Save Key ✓</button>
+      </div>
+    </div>
       <div class="empty-state" id="emptyState">
         <div class="es-icon" id="esIcon">⚡</div>
         <div class="es-title"><span class="gradient-text" id="esAppName">DocMind</span> is Ready</div>
@@ -623,7 +632,10 @@ const LOGO_EMOJIS=['⚡','📄','🧠','🔮','🦁','🚀','💎','🌟','🔥'
 window.addEventListener('load',()=>{
   applyTheme(S.theme);
   applyBranding();
-  if(S.apiKey){ document.getElementById('apiModal').style.display='none'; }
+  // App opens directly - show key banner if no key
+  if(!S.apiKey){
+    document.getElementById('keyBanner').style.display='block';
+  }
   loadSavedChats();
   initVoice();
   updateStats();
@@ -725,7 +737,7 @@ function switchTab(id){
 function saveSettingsKey(){
   const k=document.getElementById('settingsApiKey').value.trim();
   if(!k){toast('Please enter an API key','error');return;}
-  if(!k.startsWith('gsk_')){toast('Groq keys start with gsk_...','error');return;}
+  if(!k||k.length<20){toast('Key too short — paste full key','error');return;}
   S.apiKey=k;
   localStorage.setItem('dm_groq_key',k);
   closeSettings();
@@ -741,9 +753,24 @@ function saveLang(){
 // =====================================================
 // API KEY (first-time modal)
 // =====================================================
+
+function saveBannerKey(){
+  const k=document.getElementById('bannerKeyInput').value.trim();
+  if(!k||k.length<20){
+    document.getElementById('bannerKeyInput').style.borderColor='var(--error)';
+    setTimeout(()=>document.getElementById('bannerKeyInput').style.borderColor='',2000);
+    toast('Please paste your full Groq API key','error');
+    return;
+  }
+  S.apiKey=k;
+  try{ localStorage.setItem('dm_groq_key',k); }catch(e){}
+  document.getElementById('keyBanner').style.display='none';
+  toast('API key saved! Now upload a PDF to start chatting ⚡','success');
+}
+
 function saveApiKey(){
   const k=document.getElementById('apiKeyInput').value.trim();
-  if(!k.startsWith('gsk_')){toast('Enter a valid Groq key (starts with gsk_...)','error');return;}
+  if(!k || k.length < 10){toast('Please paste your complete Groq API key','error');return;}
   S.apiKey=k; localStorage.setItem('dm_groq_key',k);
   document.getElementById('apiModal').style.display='none';
   toast('Groq API key saved! Ready to chat ⚡','success');
