@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DocMind — Privacy Policy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0A0A0F;color:#EEEEF8;line-height:1.7;padding:0;}
+.header{background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(0,212,180,.08));border-bottom:1px solid #2A2A3D;padding:32px 24px;text-align:center;}
+.logo{font-size:32px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#6C63FF,#00D4B4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-sub{font-size:12px;color:#7878A0;letter-spacing:2px;margin-top:4px;}
+.container{max-width:760px;margin:0 auto;padding:40px 24px 80px;}
+h1{font-size:28px;font-weight:800;margin-bottom:8px;color:#EEEEF8;}
+.updated{font-size:13px;color:#7878A0;margin-bottom:32px;}
+h2{font-size:18px;font-weight:700;color:#6C63FF;margin:28px 0 10px;}
+p{font-size:14px;color:#9090B8;margin-bottom:12px;}
+ul{padding-left:20px;margin-bottom:12px;}
+li{font-size:14px;color:#9090B8;margin-bottom:6px;}
+.highlight{background:rgba(61,219,150,.08);border:1px solid rgba(61,219,150,.2);border-radius:10px;padding:14px 18px;margin:20px 0;}
+.highlight p{color:#EEEEF8;margin:0;}
+.contact{background:#14141F;border:1px solid #2A2A3D;border-radius:12px;padding:20px;margin-top:32px;text-align:center;}
+.contact p{margin-bottom:8px;}
+a{color:#00D4B4;}
+footer{text-align:center;padding:24px;border-top:1px solid #2A2A3D;font-size:12px;color:#4A4A68;margin-top:40px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">DocMind</div>
+  <div class="logo-sub">AI PDF INTELLIGENCE</div>
+</div>
+
+<div class="container">
+  <h1>Privacy Policy</h1>
+  <div class="updated">Last updated: January 2025</div>
+
+  <div class="highlight">
+    <p>🔒 <strong>Short version:</strong> DocMind does not collect, store, or transmit any of your personal data or documents to our servers. We have no servers. Your data stays on your device.</p>
+  </div>
+
+  <h2>1. Who We Are</h2>
+  <p>DocMind is a free, open-source Progressive Web Application (PWA) that allows users to chat with PDF documents using AI. The application runs entirely in your browser.</p>
+
+  <h2>2. What Data We Collect</h2>
+  <p><strong>We collect absolutely no personal data.</strong> Specifically:</p>
+  <ul>
+    <li>We do not collect your name, email, or contact information</li>
+    <li>We do not collect your PDF documents or their contents</li>
+    <li>We do not collect your chat conversations</li>
+    <li>We do not use cookies for tracking</li>
+    <li>We do not use analytics or tracking scripts</li>
+    <li>We do not have user accounts</li>
+  </ul>
+
+  <h2>3. How Your Data Is Processed</h2>
+  <p>All data processing happens locally in your browser:</p>
+  <ul>
+    <li><strong>PDF files</strong> — Uploaded PDFs are processed entirely in your browser using PDF.js. They are never uploaded to any server.</li>
+    <li><strong>Chat messages</strong> — Conversations are stored in your browser's localStorage only. They never leave your device (except as described below).</li>
+    <li><strong>API Key</strong> — Your Groq API key is stored in your browser's localStorage. It is sent directly from your browser to Groq's servers (api.groq.com) when making AI requests. We never see or store your API key.</li>
+  </ul>
+
+  <h2>4. Third-Party Services</h2>
+  <p>DocMind uses the following third-party services:</p>
+  <ul>
+    <li><strong>Groq API</strong> (api.groq.com) — Your chat messages and extracted PDF text are sent to Groq's servers to generate AI responses. Please review <a href="https://groq.com/privacy-policy/" target="_blank">Groq's Privacy Policy</a>.</li>
+    <li><strong>PDF.js</strong> (Cloudflare CDN) — Used for PDF parsing. No data is sent to Cloudflare.</li>
+    <li><strong>Google Fonts</strong> — Used for typography. Google may collect font request metadata.</li>
+  </ul>
+
+  <h2>5. Data Storage</h2>
+  <p>The following data is stored locally in your browser using localStorage:</p>
+  <ul>
+    <li>Your Groq API key (encrypted by browser)</li>
+    <li>Chat conversation history</li>
+    <li>App preferences (theme, language, branding)</li>
+  </ul>
+  <p>This data is stored only on your device. You can delete it anytime by clearing your browser's site data or through the app's Settings.</p>
+
+  <h2>6. Children's Privacy</h2>
+  <p>DocMind does not knowingly collect any data from children under 13. The app does not require any personal information to use.</p>
+
+  <h2>7. Changes to This Policy</h2>
+  <p>We may update this privacy policy occasionally. The updated date at the top of this page will reflect any changes. Continued use of DocMind after changes constitutes acceptance of the new policy.</p>
+
+  <h2>8. Your Rights</h2>
+  <p>Since we collect no personal data, there is nothing to request, delete, or export from our end. To delete your local data, simply clear your browser storage for this site.</p>
+
+  <h2>9. Open Source</h2>
+  <p>DocMind is open source. You can inspect all code to verify our privacy claims at our <a href="https://github.com/villupt/docmind" target="_blank">GitHub repository</a>.</p>
+
+  <div class="contact">
+    <p><strong>Contact Us</strong></p>
+    <p>Have questions about this privacy policy?</p>
+    <p>GitHub: <a href="https://github.com/villupt/docmind" target="_blank">github.com/villupt/docmind</a></p>
+  </div>
+</div>
+
+<footer>© 2025 DocMind · Free & Open Source · No data collected ever</footer>
+</body>
+</html>

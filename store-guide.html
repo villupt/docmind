@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DocMind — App Store Launch Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08080E;--surface:#10101A;--card:#14141F;--border:#222235;--accent:#6C63FF;--teal:#00D4B4;--green:#3DDB96;--gold:#F5C518;--pink:#FF6B8A;--text:#E8E8F5;--muted:#6060A0;--dim:#35355A;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6;}
+::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.grad{background:linear-gradient(135deg,var(--accent),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+nav{position:sticky;top:0;z-index:100;background:rgba(8,8,14,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;gap:16px;}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+.nav-links{display:flex;gap:4px;margin-left:auto;}
+.nav-link{color:var(--muted);font-size:12px;padding:5px 10px;border-radius:6px;text-decoration:none;transition:all .2s;}
+.nav-link:hover{color:var(--text);background:var(--card);}
+.hero{padding:56px 24px 40px;text-align:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.25);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--accent);text-transform:uppercase;margin-bottom:16px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s ease infinite;}
+h1{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,46px);font-weight:800;margin-bottom:12px;line-height:1.1;}
+.hero-desc{font-size:15px;color:var(--muted);max-width:520px;margin:0 auto;}
+.container{max-width:860px;margin:0 auto;padding:0 24px 80px;}
+.platform-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:32px 0 48px;}
+.plat-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;text-decoration:none;display:block;}
+.plat-card:hover{transform:translateY(-3px);}
+.plat-icon{font-size:28px;margin-bottom:8px;}
+.plat-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px;}
+.plat-desc{font-size:11px;color:var(--muted);}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.3px;padding:2px 7px;margin-top:6px;}
+.badge-free{background:rgba(61,219,150,.1);border:1px solid rgba(61,219,150,.25);color:var(--green);}
+.badge-best{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.25);color:var(--accent);}
+.section{margin-bottom:56px;}
+.section-head{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-top:32px;border-top:1px solid var(--border);}
+.section-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.section-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;}
+.section-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+.steps{display:flex;flex-direction:column;gap:0;}
+.step{display:flex;gap:18px;position:relative;}
+.step:not(:last-child)::after{content:'';position:absolute;left:18px;top:44px;width:2px;bottom:0;background:linear-gradient(180deg,var(--border),transparent);}
+.step-num{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;position:relative;z-index:1;border:2px solid;}
+.step-body{flex:1;padding-bottom:28px;}
+.step-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:5px;margin-top:7px;}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+.tip{background:rgba(0,212,180,.07);border:1px solid rgba(0,212,180,.2);border-radius:9px;padding:11px 14px;margin:10px 0;display:flex;gap:9px;}
+.warn{background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.2);border-radius:9px;padding:11px 14px;margin:10px 0;display:flex;gap:9px;}
+.success-box{background:rgba(61,219,150,.07);border:1px solid rgba(61,219,150,.2);border-radius:9px;padding:11px 14px;margin:10px 0;display:flex;gap:9px;}
+.box-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+.box-text{font-size:13px;color:var(--muted);line-height:1.6;}
+.box-text strong{color:var(--text);}
+.box-text code,.inline-code{font-family:'DM Mono',monospace;font-size:11px;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;color:var(--teal);}
+.term{background:#000;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:10px 0;}
+.term-head{background:#111;padding:7px 12px;display:flex;gap:5px;border-bottom:1px solid #1a1a1a;}
+.t-dot{width:11px;height:11px;border-radius:50%;}
+.term-body{padding:13px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.8;overflow-x:auto;}
+.tc{color:var(--teal);} .tg{color:var(--green);} .tm{color:var(--muted);} .tw{color:var(--text);} .tp{color:#FF79C6;}
+.file-item{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin:6px 0;}
+.file-icon{font-size:18px;}
+.file-name{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;}
+.file-check{color:var(--green);margin-left:auto;}
+.checklist{display:flex;flex-direction:column;gap:7px;margin:12px 0;}
+.check-row{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);}
+.check-row strong{color:var(--text);}
+.check-icon{flex-shrink:0;margin-top:1px;}
+.store-listing{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin:14px 0;}
+.store-listing-head{background:var(--surface);padding:12px 16px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px;}
+.store-listing-body{padding:16px;}
+.field{margin-bottom:14px;}
+.field-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.field-value{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.6;color:var(--text-muted);}
+.copy-field{cursor:pointer;transition:all .2s;}
+.copy-field:hover{border-color:var(--accent);}
+a.ext-link{color:var(--teal);font-weight:600;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:40px 0;}
+footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center;color:var(--dim);font-size:12px;}
+@media(max-width:600px){.nav-links{display:none;}.platform-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⚡ DocMind — Store Launch Guide</div>
+  <div class="nav-links">
+    <a class="nav-link" href="#pwa">PWA</a>
+    <a class="nav-link" href="#amazon">Amazon</a>
+    <a class="nav-link" href="#apk">APK</a>
+    <a class="nav-link" href="#samsung">Samsung</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge"><div class="dot"></div> Free Distribution Guide</div>
+  <h1>Launch DocMind on<br><span class="grad">4 Platforms — Zero Cost</span></h1>
+  <p class="hero-desc">No Google Play $25 fee needed. Reach millions of users completely free through these 4 channels.</p>
+</div>
+
+<div class="container">
+
+  <!-- PLATFORM OVERVIEW -->
+  <div class="platform-grid">
+    <a href="#pwa" class="plat-card" style="border-color:rgba(108,99,255,.3);">
+      <div class="plat-icon">📲</div>
+      <div class="plat-name">PWA</div>
+      <div class="plat-desc">Install from browser — works everywhere</div>
+      <div class="badge badge-best">⭐ Best Option</div>
+    </a>
+    <a href="#amazon" class="plat-card" style="border-color:rgba(245,197,24,.3);">
+      <div class="plat-icon">🛒</div>
+      <div class="plat-name">Amazon Appstore</div>
+      <div class="plat-desc">Real store listing, free publish</div>
+      <div class="badge badge-free">Free</div>
+    </a>
+    <a href="#apk" class="plat-card" style="border-color:rgba(0,212,180,.3);">
+      <div class="plat-icon">📦</div>
+      <div class="plat-name">Direct APK</div>
+      <div class="plat-desc">Share install link — no store needed</div>
+      <div class="badge badge-free">Free</div>
+    </a>
+    <a href="#samsung" class="plat-card" style="border-color:rgba(255,107,138,.3);">
+      <div class="plat-icon">📱</div>
+      <div class="plat-name">Samsung Galaxy</div>
+      <div class="plat-desc">Pre-installed on all Samsung phones</div>
+      <div class="badge badge-free">Free</div>
+    </a>
+  </div>
+
+  <!-- BEFORE YOU START -->
+  <div class="warn">
+    <div class="box-icon">⚠️</div>
+    <div class="box-text"><strong>Do these first!</strong> Before any store submission, make sure these are on your GitHub: <code>index.html</code>, <code>manifest.json</code>, <code>sw.js</code>, <code>privacy.html</code>, and all <code>icon-*.png</code> files.</div>
+  </div>
+
+  <div style="margin:16px 0 32px;">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Files needed on GitHub:</div>
+    <div class="file-item"><div class="file-icon">📄</div><div class="file-name">index.html</div><div class="file-check">✓ Done</div></div>
+    <div class="file-item"><div class="file-icon">📋</div><div class="file-name">manifest.json</div><div class="file-check">✓ Done</div></div>
+    <div class="file-item"><div class="file-icon">⚙️</div><div class="file-name">sw.js</div><div class="file-check">✓ Done</div></div>
+    <div class="file-item"><div class="file-icon">🔒</div><div class="file-name">privacy.html</div><div class="file-check">✓ Done</div></div>
+    <div class="file-item"><div class="file-icon">🖼️</div><div class="file-name">icon-192.png, icon-512.png (+ others)</div><div class="file-check">⬇ Generate</div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ======================== PWA ======================== -->
+  <div class="section" id="pwa">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(108,99,255,.12);border:1.5px solid rgba(108,99,255,.25);">📲</div>
+      <div>
+        <div class="section-title">1. PWA — Progressive Web App</div>
+        <div class="section-sub">Users tap "Add to Home Screen" → installed like a real app · Works on Android & iPhone · Zero cost</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.1);">1</div>
+        <div class="step-body">
+          <div class="step-title">Generate & Upload All Icons</div>
+          <div class="step-desc">Open <strong>generate-icons.html</strong> in your browser → click "Download All Icons" → upload all icon-*.png files to your GitHub repo.</div>
+          <div class="tip"><div class="box-icon">💡</div><div class="box-text">Upload icons to GitHub: go to your repo → Add file → Upload files → drag all icon PNGs → Commit changes.</div></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.1);">2</div>
+        <div class="step-body">
+          <div class="step-title">Upload All 4 Files to GitHub</div>
+          <div class="step-desc">Go to <code>github.com/villupt/docmind</code> → Upload these files: <code>manifest.json</code>, <code>sw.js</code>, <code>privacy.html</code>, updated <code>index.html</code></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.1);">3</div>
+        <div class="step-body">
+          <div class="step-title">Test PWA Installation</div>
+          <div class="step-desc">Open your phone's Chrome browser → go to <code>villupt.github.io/docmind</code> → you should see an "Add to Home Screen" banner or a ⬇ Install button in the app header.</div>
+          <div class="success-box"><div class="box-icon">✅</div><div class="box-text"><strong>It works when:</strong> A banner appears saying "Add DocMind to Home Screen" OR the ⬇ install button in the header is visible. Tap it → app installs with icon on home screen!</div></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.1);">4</div>
+        <div class="step-body">
+          <div class="step-title">Share Your PWA Install Link</div>
+          <div class="step-desc">Share this URL anywhere — WhatsApp, Instagram bio, email. Anyone who opens it on Android/iPhone can install it as an app.</div>
+          <div class="term">
+            <div class="term-head"><div class="t-dot" style="background:#FF5F57"></div><div class="t-dot" style="background:#FFBD2E"></div><div class="t-dot" style="background:#28CA41"></div></div>
+            <div class="term-body">
+              <div class="tm"># Share this URL to install DocMind as an app:</div>
+              <div class="tc">https://villupt.github.io/docmind</div>
+              <div style="margin-top:8px;" class="tm"># For WhatsApp/Instagram caption:</div>
+              <div class="tg">📱 Install DocMind free! Chat with PDFs using AI.</div>
+              <div class="tg">➡ villupt.github.io/docmind</div>
+              <div class="tg">Open in Chrome → tap "Add to Home Screen"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ======================== AMAZON ======================== -->
+  <div class="section" id="amazon">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(245,197,24,.1);border:1.5px solid rgba(245,197,24,.25);">🛒</div>
+      <div>
+        <div class="section-title">2. Amazon Appstore</div>
+        <div class="section-sub">Free to publish · Available on Android phones + Fire tablets · Real store listing</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,.1);">1</div>
+        <div class="step-body">
+          <div class="step-title">Create Free Amazon Developer Account</div>
+          <div class="step-desc">Go to <a class="ext-link" href="https://developer.amazon.com" target="_blank">developer.amazon.com</a> → Sign in with your existing Amazon account (free) → Accept developer agreement.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,.1);">2</div>
+        <div class="step-body">
+          <div class="step-title">Generate APK via PWABuilder (Free)</div>
+          <div class="step-desc">PWABuilder converts your website into an Android APK for free:</div>
+          <div class="term">
+            <div class="term-head"><div class="t-dot" style="background:#FF5F57"></div><div class="t-dot" style="background:#FFBD2E"></div><div class="t-dot" style="background:#28CA41"></div></div>
+            <div class="term-body">
+              <div class="tm"># Step by step:</div>
+              <div class="tw">1. Go to <span class="tc">pwabuilder.com</span></div>
+              <div class="tw">2. Enter URL: <span class="tg">https://villupt.github.io/docmind</span></div>
+              <div class="tw">3. Click "Start" → wait for analysis</div>
+              <div class="tw">4. Click "Build My PWA"</div>
+              <div class="tw">5. Select "Android" → click "Generate"</div>
+              <div class="tw">6. Download the APK/AAB file</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,.1);">3</div>
+        <div class="step-body">
+          <div class="step-title">Submit to Amazon Appstore</div>
+          <div class="step-desc">In your Amazon Developer account → Add new app → Fill in the store listing below → Upload your APK.</div>
+          <div class="store-listing">
+            <div class="store-listing-head">COPY-PASTE STORE LISTING</div>
+            <div class="store-listing-body">
+              <div class="field"><div class="field-label">App Title (max 250 chars)</div><div class="field-value copy-field" onclick="copyText(this)">DocMind — AI PDF Chat & Analyzer</div></div>
+              <div class="field"><div class="field-label">Short Description</div><div class="field-value copy-field" onclick="copyText(this)">Chat with any PDF using free AI. Upload documents and get instant answers, summaries, and page citations powered by Groq AI.</div></div>
+              <div class="field"><div class="field-label">Full Description</div><div class="field-value copy-field" onclick="copyText(this)">DocMind lets you have real conversations with your PDF documents using powerful AI — completely free, no subscription needed.
+
+🤖 POWERED BY GROQ AI (FREE)
+• Chat with any PDF — ask questions in plain language
+• Get cited answers with exact page numbers
+• Summarize long documents in seconds
+• Extract data, statistics, and action items instantly
+
+📱 KEY FEATURES
+• Upload any PDF — no size limit
+• Voice input — speak your questions
+• Dark & Light theme
+• Save chat history automatically
+• 13 languages supported including Hindi, Arabic, Tamil
+• Share conversations as links
+• Export chats as Markdown, PDF, or plain text
+• Works offline after first load
+
+🔒 100% PRIVATE
+Your PDFs never leave your device. All processing happens locally in your browser. We collect zero personal data.
+
+FREE FOREVER — No subscription, no credit card, no ads. Just get a free API key from console.groq.com/keys and start chatting with your PDFs!
+
+Categories: Productivity, Utilities, Education</div></div>
+              <div class="field"><div class="field-label">Keywords</div><div class="field-value copy-field" onclick="copyText(this)">PDF reader, AI chat, document analysis, PDF summarizer, Groq AI, PDF question answer, document reader, study tool, free AI app</div></div>
+              <div class="field"><div class="field-label">Privacy Policy URL</div><div class="field-value copy-field" onclick="copyText(this)">https://villupt.github.io/docmind/privacy.html</div></div>
+              <div class="field"><div class="field-label">Category</div><div class="field-value">Productivity</div></div>
+              <div class="field"><div class="field-label">Content Rating</div><div class="field-value">Everyone (4+)</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,.1);">4</div>
+        <div class="step-body">
+          <div class="step-title">Upload Assets & Submit</div>
+          <div class="checklist">
+            <div class="check-row"><div class="check-icon">🖼️</div><div><strong>Icon 512x512</strong> — icon-512.png (generated earlier)</div></div>
+            <div class="check-row"><div class="check-icon">🖼️</div><div><strong>Feature Graphic 1024x500</strong> — feature-graphic-1024x500.png</div></div>
+            <div class="check-row"><div class="check-icon">📱</div><div><strong>3 Screenshots</strong> — take phone screenshots of the app in action</div></div>
+            <div class="check-row"><div class="check-icon">📦</div><div><strong>APK file</strong> — downloaded from PWABuilder</div></div>
+          </div>
+          <div class="success-box"><div class="box-icon">✅</div><div class="box-text">Amazon reviews take <strong>1–3 days</strong>. After approval your app is live on Amazon Appstore accessible on any Android phone!</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ======================== APK DIRECT ======================== -->
+  <div class="section" id="apk">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(0,212,180,.1);border:1.5px solid rgba(0,212,180,.25);">📦</div>
+      <div>
+        <div class="section-title">3. Direct APK Download</div>
+        <div class="section-sub">Host APK on GitHub · Share download link · Users install directly · No store needed</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="border-color:var(--teal);color:var(--teal);background:rgba(0,212,180,.1);">1</div>
+        <div class="step-body">
+          <div class="step-title">Generate APK with PWABuilder</div>
+          <div class="step-desc">Same as Amazon step 2 — go to <a class="ext-link" href="https://pwabuilder.com" target="_blank">pwabuilder.com</a>, enter <code>https://villupt.github.io/docmind</code>, generate Android APK.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--teal);color:var(--teal);background:rgba(0,212,180,.1);">2</div>
+        <div class="step-body">
+          <div class="step-title">Upload APK to GitHub Releases</div>
+          <div class="term">
+            <div class="term-head"><div class="t-dot" style="background:#FF5F57"></div><div class="t-dot" style="background:#FFBD2E"></div><div class="t-dot" style="background:#28CA41"></div></div>
+            <div class="term-body">
+              <div class="tm"># Upload APK to GitHub:</div>
+              <div class="tw">1. Go to <span class="tc">github.com/villupt/docmind</span></div>
+              <div class="tw">2. Click "Releases" on the right sidebar</div>
+              <div class="tw">3. Click "Create a new release"</div>
+              <div class="tw">4. Tag: <span class="tg">v1.0.0</span> · Title: <span class="tg">DocMind v1.0.0</span></div>
+              <div class="tw">5. Drag your APK file into the assets area</div>
+              <div class="tw">6. Click "Publish release"</div>
+              <div style="margin-top:8px;" class="tm"># Your APK download link will be:</div>
+              <div class="tc">github.com/villupt/docmind/releases/latest</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--teal);color:var(--teal);background:rgba(0,212,180,.1);">3</div>
+        <div class="step-body">
+          <div class="step-title">Share the Download Link</div>
+          <div class="tip"><div class="box-icon">💡</div><div class="box-text"><strong>Users install it by:</strong> Opening the APK link on their Android phone → tap Download → open APK file → tap Install → enable "Install from unknown sources" if prompted → Done!</div></div>
+          <div class="term">
+            <div class="term-body">
+              <div class="tg"># Share this anywhere:</div>
+              <div class="tw">📱 Download DocMind APK (Android):</div>
+              <div class="tc">https://github.com/villupt/docmind/releases/latest</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ======================== SAMSUNG ======================== -->
+  <div class="section" id="samsung">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(255,107,138,.1);border:1.5px solid rgba(255,107,138,.25);">📱</div>
+      <div>
+        <div class="section-title">4. Samsung Galaxy Store</div>
+        <div class="section-sub">Pre-installed on ALL Samsung phones · Free to publish · Huge reach in India</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="border-color:var(--pink);color:var(--pink);background:rgba(255,107,138,.1);">1</div>
+        <div class="step-body">
+          <div class="step-title">Create Free Samsung Developer Account</div>
+          <div class="step-desc">Go to <a class="ext-link" href="https://seller.samsungapps.com" target="_blank">seller.samsungapps.com</a> → Register (free) → Verify email → Log in.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--pink);color:var(--pink);background:rgba(255,107,138,.1);">2</div>
+        <div class="step-body">
+          <div class="step-title">Generate Signed APK via PWABuilder</div>
+          <div class="step-desc">Use PWABuilder again but this time download the <strong>signed AAB</strong> (Android App Bundle) — Samsung requires a signed package. PWABuilder signs it for you for free.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" style="border-color:var(--pink);color:var(--pink);background:rgba(255,107,138,.1);">3</div>
+        <div class="step-body">
+          <div class="step-title">Submit App on Samsung Seller Portal</div>
+          <div class="step-desc">Dashboard → Add new app → Fill details (same store listing text as Amazon above) → Upload AAB → Upload icons → Submit.</div>
+          <div class="checklist">
+            <div class="check-row"><div class="check-icon">📋</div><div>App title, description, keywords (copy from Amazon section)</div></div>
+            <div class="check-row"><div class="check-icon">🖼️</div><div>Icon 512x512 + feature graphic 1024x500</div></div>
+            <div class="check-row"><div class="check-icon">📸</div><div>At least 4 screenshots</div></div>
+            <div class="check-row"><div class="check-icon">📦</div><div>Signed AAB from PWABuilder</div></div>
+            <div class="check-row"><div class="check-icon">🔒</div><div>Privacy policy: https://villupt.github.io/docmind/privacy.html</div></div>
+          </div>
+          <div class="success-box"><div class="box-icon">✅</div><div class="box-text">Samsung reviews take <strong>2–5 days</strong>. After approval, DocMind appears in Galaxy Store on all Samsung phones including Galaxy S, A, M series!</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FINAL SUMMARY -->
+  <div style="background:linear-gradient(135deg,rgba(108,99,255,.1),rgba(0,212,180,.06));border:1.5px solid rgba(108,99,255,.25);border-radius:18px;padding:28px;text-align:center;">
+    <div style="font-size:36px;margin-bottom:12px;">🚀</div>
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px;">Your Full Distribution Plan</div>
+    <div style="font-size:13px;color:var(--muted);line-height:2;max-width:480px;margin:0 auto;">
+      ✅ <strong style="color:var(--text);">PWA</strong> — Installable from browser on any phone, zero effort<br>
+      ✅ <strong style="color:var(--text);">Amazon Appstore</strong> — Real store listing, Fire tablets included<br>
+      ✅ <strong style="color:var(--text);">Direct APK</strong> — Shareable download link for immediate installs<br>
+      ✅ <strong style="color:var(--text);">Samsung Galaxy Store</strong> — Pre-installed store on 1 billion+ Samsung phones<br><br>
+      <strong style="color:var(--teal);">Total cost: ₹0 · Total time: ~2 hours · Potential users: Millions</strong>
+    </div>
+  </div>
+
+</div>
+
+<footer>DocMind Store Launch Guide · All platforms 100% free · No Google Play $25 fee needed</footer>
+
+<script>
+function copyText(el) {
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    const orig = el.style.borderColor;
+    el.style.borderColor = '#3DDB96';
+    el.style.color = '#3DDB96';
+    setTimeout(() => { el.style.borderColor = orig; el.style.color = ''; }, 1500);
+  });
+}
+</script>
+</body>
+</html>

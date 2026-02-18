@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>DocMind Icon Generator</title>
+<style>
+body{font-family:sans-serif;background:#0a0a0f;color:#eee;padding:30px;text-align:center;}
+h2{color:#6C63FF;margin-bottom:20px;}
+.grid{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:20px 0;}
+.icon-box{background:#14141f;border:1px solid #2a2a3d;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;}
+.icon-box:hover{border-color:#6C63FF;}
+.icon-box canvas{display:block;margin:0 auto 8px;}
+.icon-label{font-size:12px;color:#888;margin-bottom:6px;}
+.dl-btn{background:#6C63FF;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:12px;font-weight:700;padding:5px 12px;}
+.dl-btn:hover{background:#7D75FF;}
+.dl-all{background:#00D4B4;border:none;border-radius:10px;color:#000;cursor:pointer;font-size:14px;font-weight:800;padding:12px 28px;margin:16px auto;display:block;}
+.dl-all:hover{background:#00C9B8;}
+p{color:#666;font-size:13px;margin-bottom:20px;}
+</style>
+</head>
+<body>
+<h2>⚡ DocMind Icon Generator</h2>
+<p>Click "Download All" to get all icon sizes needed for PWA, Play Store, Amazon & Samsung Galaxy Store</p>
+<button class="dl-all" onclick="downloadAll()">⬇️ Download All Icons</button>
+<div class="grid" id="grid"></div>
+
+<script>
+const SIZES = [72, 96, 128, 144, 152, 192, 384, 512];
+
+function drawIcon(size) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  // Background gradient
+  const bg = ctx.createLinearGradient(0, 0, size, size);
+  bg.addColorStop(0, '#0A0A0F');
+  bg.addColorStop(1, '#1A1A28');
+  ctx.fillStyle = bg;
+  const r = size * 0.18;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(size - r, 0);
+  ctx.quadraticCurveTo(size, 0, size, r);
+  ctx.lineTo(size, size - r);
+  ctx.quadraticCurveTo(size, size, size - r, size);
+  ctx.lineTo(r, size);
+  ctx.quadraticCurveTo(0, size, 0, size - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Accent glow
+  const glow = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+  glow.addColorStop(0, 'rgba(108,99,255,0.3)');
+  glow.addColorStop(1, 'rgba(0,212,180,0.05)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // D letter
+  const fontSize = size * 0.52;
+  ctx.font = `800 ${fontSize}px 'Arial Black', Arial, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Gradient text
+  const grad = ctx.createLinearGradient(size*0.2, size*0.3, size*0.8, size*0.7);
+  grad.addColorStop(0, '#6C63FF');
+  grad.addColorStop(1, '#00D4B4');
+  ctx.fillStyle = grad;
+  ctx.fillText('D', size / 2, size / 2 + size * 0.03);
+
+  // Small dot accent
+  ctx.fillStyle = '#00D4B4';
+  ctx.beginPath();
+  ctx.arc(size * 0.72, size * 0.28, size * 0.05, 0, Math.PI * 2);
+  ctx.fill();
+
+  return canvas;
+}
+
+function downloadCanvas(canvas, filename) {
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = filename;
+  a.click();
+}
+
+function downloadAll() {
+  SIZES.forEach((size, i) => {
+    setTimeout(() => {
+      const canvas = drawIcon(size);
+      downloadCanvas(canvas, `icon-${size}.png`);
+    }, i * 300);
+  });
+  setTimeout(() => {
+    // Also download feature graphic (1024x500) for stores
+    const fg = document.createElement('canvas');
+    fg.width = 1024; fg.height = 500;
+    const ctx = fg.getContext('2d');
+    const bg = ctx.createLinearGradient(0, 0, 1024, 500);
+    bg.addColorStop(0, '#0A0A0F'); bg.addColorStop(1, '#1A1A28');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, 1024, 500);
+    const glow = ctx.createRadialGradient(512, 250, 0, 512, 250, 400);
+    glow.addColorStop(0, 'rgba(108,99,255,0.2)'); glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, 1024, 500);
+    const iconC = drawIcon(180);
+    ctx.drawImage(iconC, 412, 60, 200, 200);
+    ctx.font = 'bold 56px Arial Black';
+    ctx.textAlign = 'center';
+    const tg = ctx.createLinearGradient(312, 0, 712, 0);
+    tg.addColorStop(0, '#6C63FF'); tg.addColorStop(1, '#00D4B4');
+    ctx.fillStyle = tg;
+    ctx.fillText('DocMind', 512, 330);
+    ctx.font = '24px Arial';
+    ctx.fillStyle = '#7878A0';
+    ctx.fillText('Chat with any PDF — AI Powered · 100% Free', 512, 375);
+    downloadCanvas(fg, 'feature-graphic-1024x500.png');
+  }, SIZES.length * 300 + 500);
+  alert('Downloading ' + SIZES.length + ' icon sizes + feature graphic!\nSave ALL files to your GitHub folder.');
+}
+
+// Render preview grid
+const grid = document.getElementById('grid');
+SIZES.forEach(size => {
+  const canvas = drawIcon(size);
+  const display = Math.min(size, 96);
+  const preview = drawIcon(display);
+  const box = document.createElement('div');
+  box.className = 'icon-box';
+  box.innerHTML = `<div class="icon-label">${size}x${size}px</div>`;
+  box.appendChild(preview);
+  const btn = document.createElement('button');
+  btn.className = 'dl-btn';
+  btn.textContent = '⬇ Download';
+  btn.onclick = () => downloadCanvas(canvas, `icon-${size}.png`);
+  box.appendChild(btn);
+  grid.appendChild(box);
+});
+</script>
+</body>
+</html>
