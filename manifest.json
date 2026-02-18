@@ -1,13 +1,92 @@
 {
-  "background_color": "#0a0a0f",
-  "dir": "ltr",
-  "display": "standalone",
-  "name": "DocMind — AI PDF Intelligence",
-  "orientation": "any",
-  "scope": "/",
+  "name": "DocMind \u2014 AI PDF Intelligence",
   "short_name": "DocMind",
-  "start_url": "/",
-  "theme_color": "#6c63ff",
-  "id": "/docmind/",
-  "description": "Chat with any PDF using Groq AI — free, fast, no credit card needed"
+  "description": "Chat with any PDF using Groq AI \u2014 100% free, no credit card needed",
+  "start_url": "/docmind/",
+  "scope": "/docmind/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#6C63FF",
+  "background_color": "#0A0A0F",
+  "lang": "en",
+  "categories": [
+    "productivity",
+    "utilities",
+    "education"
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Chat with PDFs"
+    }
+  ],
+  "icons": [
+    {
+      "src": "icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Upload PDF",
+      "short_name": "Upload",
+      "description": "Upload a new PDF to analyze",
+      "url": "/docmind/#upload",
+      "icons": [
+        {
+          "src": "icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "id": "/docmind/"
 }
