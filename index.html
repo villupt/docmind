@@ -302,9 +302,9 @@ textarea#chatInput::placeholder{color:var(--text-dim);}
     <div class="sidebar-footer">
       <div style="font-size:10px;color:var(--text-dim);font-weight:700;letter-spacing:.5px;margin-bottom:5px;">GEMINI MODEL (FREE)</div>
       <select class="model-select" id="modelSelect">
-        <option value="gemini-2.0-flash" selected>Gemini 2.0 Flash — Recommended (Free)</option>
-        <option value="gemini-1.5-flash">Gemini 1.5 Flash — Fast &amp; Free</option>
-        <option value="gemini-1.5-pro">Gemini 1.5 Pro — Most Capable (Free)</option>
+        <option value="gemini-1.5-flash" selected>Gemini 1.5 Flash — ✅ Free Tier (Recommended)</option>
+        <option value="gemini-1.5-pro">Gemini 1.5 Pro — ✅ Free Tier (Most Capable)</option>
+        <option value="gemini-2.0-flash">Gemini 2.0 Flash — ⚠️ Paid Only</option>
       </select>
       <div class="stats-row">
         <div class="stat-box"><div class="stat-val" id="sDocs" style="color:var(--accent);">0</div><div class="stat-label">Docs</div></div>
@@ -687,7 +687,7 @@ async function sendMessage() {
       ? S.docs.map(d=>`=== ${d.name} ===\n${d.fullText}`).join('\n\n')
       : doc.fullText;
     // Limit to ~90k chars to stay within context
-    ctxText = ctxText.slice(0,90000);
+    ctxText = ctxText.slice(0,30000); // Gemini free tier has input token limits
 
     const model = document.getElementById('modelSelect').value;
     const system = `You are DocMind, an expert AI assistant for analyzing PDF documents.
